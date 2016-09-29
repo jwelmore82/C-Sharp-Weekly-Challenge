@@ -9,15 +9,16 @@ namespace CodeLou.CSharp.Week3.Challenge
 		//Info: This is a neat type that allows you to lookup items by ID, be careful not to ask for an item that isn't there.
 		private readonly Dictionary<int, Reminder> _dictionary; 
 
-		public ReminderRepository()
+		public  ReminderRepository()
 		{
 			_dictionary = new Dictionary<int, Reminder>();
 		}
 
-		public Reminder Create()
+		public virtual Reminder Create()
 		{
 			//Challenge: Can you find a more efficient way to do this?
 			var nextAvailableId = 0;
+
 			foreach (var currentId in _dictionary.Keys)
 			{
 				if (nextAvailableId > currentId)
@@ -30,7 +31,8 @@ namespace CodeLou.CSharp.Week3.Challenge
 
 			var reminder = new Reminder();
 			reminder.Id = nextAvailableId;
-			_dictionary.Add(nextAvailableId, new Reminder());
+            CalendarItemBase.GetInitialValues(reminder);
+			_dictionary.Add(nextAvailableId, reminder);
 
 			return reminder;
 		}
@@ -39,27 +41,42 @@ namespace CodeLou.CSharp.Week3.Challenge
         //Could you use inheritance?
 		public Reminder FindById(int id)
 		{
-			throw new NotImplementedException();
+            return _dictionary[id];
 		}
 
 		public Reminder Update(Reminder item)
 		{
-			throw new NotImplementedException();
+            _dictionary[item.Id] = item;
+            return _dictionary[item.Id];
 		}
 
 		public void Delete(Reminder item)
 		{
-			throw new NotImplementedException();
+            _dictionary.Remove(item.Id);
 		}
 
 		public IEnumerable<Reminder> FindByDate(DateTime date)
 		{
-			throw new NotImplementedException();
+            var reminders = new List<Reminder>();
+            foreach (var reminder in _dictionary.Values)
+            {
+                 
+                if (date.DayOfYear == reminder.StartTime.DayOfYear)
+                {
+                    reminders.Add(reminder);
+                }
+            }
+            return reminders;
 		}
 
 		public IEnumerable<Reminder> GetAllItems()
 		{
-			throw new NotImplementedException();
+            List<Reminder> reminders = new List<Reminder>();
+            foreach (var reminder in _dictionary.Values)
+            {
+                reminders.Add(reminder);
+            }
+            return reminders;
 		}
 
 		public string ToJson()
