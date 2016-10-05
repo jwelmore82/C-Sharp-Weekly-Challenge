@@ -14,6 +14,6 @@ namespace CodeLou.CSharp.Week3.Challenge
 		IEnumerable<T> FindByDate(DateTime date);
 		IEnumerable<T> GetAllItems();
 		string ToJson();
-		void LoadFromJson(string json);
+		void LoadFromJson<X>(string json) where X : CalendarItemBase;
 	}
 }

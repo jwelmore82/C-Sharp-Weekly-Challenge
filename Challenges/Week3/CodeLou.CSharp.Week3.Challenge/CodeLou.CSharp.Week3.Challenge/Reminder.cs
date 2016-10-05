@@ -30,5 +30,10 @@ namespace CodeLou.CSharp.Week3.Challenge
             }
         }
 
-	}
+        public override string ToString()
+        {
+            return string.Format("Reminder ID: {0}, \r\n Time and date: {1}, \r\n Description: {2}", Id, StartTime, Description);
+        }
+
+    }
 }

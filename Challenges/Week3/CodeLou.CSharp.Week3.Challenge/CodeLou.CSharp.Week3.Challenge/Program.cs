@@ -34,13 +34,19 @@ namespace CodeLou.CSharp.Week3.Challenge
 			var reminderRepository = new ReminderRepository(); 
 			if (File.Exists("Reminders.json")) //Note: these files are created in the same folder as your .exe
 				//Note: What happens when this file is improperly formatte? Can you handle this case?
-				reminderRepository.LoadFromJson(File.ReadAllText("Reminders.json"));
+				reminderRepository.LoadFromJson<Reminder>(File.ReadAllText("Reminders.json"));
 
             // Hint: var appointmentRepository = new AppointmentRepository(); etc...
             var appointmentRepository = new AppointmentRepository();
             if (File.Exists("Appointments.json"))
             {
-                appointmentRepository.LoadFromJson(File.ReadAllText("Appointments.json"));
+                appointmentRepository.LoadFromJson<Appointment>(File.ReadAllText("Appointments.json"));
+            }
+
+            var meetingRepository = new MeetingRepository();
+            if (File.Exists("Meetings.json"))
+            {
+                meetingRepository.LoadFromJson<Meeting>(File.ReadAllText("Meetings.json"));
             }
 
             // Task 5:
@@ -77,17 +83,19 @@ namespace CodeLou.CSharp.Week3.Challenge
 						switch (selectedType)
 						{//switch statements require a "break;", be careful not to experience this error
 							case ('A'):
-                                Appointment newAppointment = appointmentRepository.Create();
-                                string response = string.Format("New Appointment Created. ID: {0}, \r\n Start time and date: {1}, \r\n End time and date: {2} \r\n Location: {3} \r\n Description {4}", newAppointment.Id, newAppointment.StartTime,newAppointment.EndTime, newAppointment.Location, newAppointment.Description);
+                                Appointment newAppointment =(Appointment)appointmentRepository.Create();
+                                string response = "Created New " + newAppointment;
                                 Console.WriteLine(response);
                                 break;
                             case ('M'):
-                                
-								throw new NotImplementedException();
-								break;
+                                Meeting newMeeting = (Meeting)meetingRepository.Create();
+                                response = "Created New " + newMeeting;
+                                Console.WriteLine(response);
+
+                                break;
 							case ('R'):
-								var newReminder = reminderRepository.Create();
-                                response = string.Format("New Reminder Created. ID: {0}, \r\n Time and date: {1}, \r\n Description {2}", newReminder.Id, newReminder.StartTime, newReminder.Description);
+								Reminder newReminder = (Reminder)reminderRepository.Create();
+                                response = "Created New " + newReminder;
                                 Console.WriteLine(response);
 								break;
 							default:
@@ -100,10 +108,85 @@ namespace CodeLou.CSharp.Week3.Challenge
 						
 						break;
 					case ('V'):
+
+                        //Get everything and call overridden ToString on each item.
+
+                        foreach (var reminder in reminderRepository.GetAllItems())
+                        {
+                            Console.WriteLine(reminder);
+                        }
+                        foreach (var appointment in appointmentRepository.GetAllItems())
+                        {
+                            Console.WriteLine(appointment);
+                        }
+                        foreach (var meeting in meetingRepository.GetAllItems())
+                        {
+                            Console.WriteLine(meeting);
+                        }
+                        break;
 					case ('F'):
+                        Console.WriteLine("Enter a Date");
+                        var input = Console.ReadLine();
+                        var searchDate = new DateTime();
+                        if (DateTime.TryParse(input, out searchDate))
+                        {
+                            foreach (var reminder in reminderRepository.FindByDate(searchDate))
+                            {
+                                Console.WriteLine(reminder);
+                            }
+                            foreach (var appointment in appointmentRepository.FindByDate(searchDate))
+                            {
+                                Console.WriteLine(appointment);
+                            }
+                            foreach (var meeting in meetingRepository.FindByDate(searchDate))
+                            {
+                                Console.WriteLine(meeting);
+                            }
+                        }
+                            break;
 					case ('D'):
-						throw new NotImplementedException();
-						break;
+                        Console.WriteLine("A: Appointment");
+                        Console.WriteLine("M: Meeting");
+                        Console.WriteLine("R: Reminder");
+                        Console.WriteLine();
+                        Console.Write("Select a type:");
+                        selectedType = Console.ReadKey().KeyChar;
+                        Console.Clear();
+
+                        switch (selectedType)
+                        {
+                            case ('A'):
+                                Console.WriteLine("Enter Id of Appointment to Delete");
+                                int toDelete;
+                                var response = Console.ReadLine();
+                                if (int.TryParse(response, out toDelete))
+                                {
+                                    appointmentRepository.Delete(appointmentRepository.FindById(toDelete));
+                                    Console.WriteLine("Item deleted.");
+                                }
+                                
+                                break;
+                            case ('R'):
+                                Console.WriteLine("Enter Id of Reminder to Delete");
+                                response = Console.ReadLine();
+                                if (int.TryParse(response, out toDelete))
+                                {
+                                    reminderRepository.Delete(reminderRepository.FindById(toDelete));
+                                    Console.WriteLine("Item deleted.");
+                                }
+                                break;
+                            case ('M'):
+                                Console.WriteLine("Enter Id of Meeting to Delete");
+                                response = Console.ReadLine();
+                                if (int.TryParse(response, out toDelete))
+                                {
+                                    meetingRepository.Delete(meetingRepository.FindById(toDelete));
+                                    Console.WriteLine("Item deleted.");
+                                }
+                                break;
+                        }
+
+                        break;
 					default:
 						Console.WriteLine($"Invalid Option {selectedOption}, press any key to continue.");
 						Console.Read();
@@ -112,6 +195,7 @@ namespace CodeLou.CSharp.Week3.Challenge
 			}
 			File.WriteAllText("Reminders.json", reminderRepository.ToJson());
             File.WriteAllText("Appointments.json", appointmentRepository.ToJson());
+            File.WriteAllText("Meetings.json", meetingRepository.ToJson());
         }
 	}
 }

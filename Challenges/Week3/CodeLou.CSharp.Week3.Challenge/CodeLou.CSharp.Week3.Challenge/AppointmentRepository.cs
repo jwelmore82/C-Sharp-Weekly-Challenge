@@ -7,80 +7,46 @@ using System.Threading.Tasks;
 
 namespace CodeLou.CSharp.Week3.Challenge
 {
-    class AppointmentRepository : ICalendarItemRepository<Appointment>
+    public class AppointmentRepository :  RepositoryBase, ICalendarItemRepository<Appointment>
     {
-
-        private readonly Dictionary<int, Appointment> _dictionary;
-        public AppointmentRepository()
-        {
-            _dictionary = new Dictionary<int, Appointment>();
-        }
 
         public Appointment Create()
         {
-            var nextAvailableId = 0;
-            var appointment = new Appointment();
-            var isSet = false;
-            while (!isSet)
-            {
-                if (_dictionary.ContainsKey(nextAvailableId))
-                {
-                    nextAvailableId++;
-                    continue;
-                }
-                else
-                {
-                    appointment.Id = nextAvailableId;
-                    isSet = true;
-                }
-            }
-
+            var appointment = base.Create<Appointment>();
+            
 
             CalendarItemBase.GetInitialValues(appointment);
             CalendarItemBase.GetEndDateAndLocation(appointment);
-            _dictionary.Add(nextAvailableId, appointment);
+            Dictionary.Add(appointment.Id, appointment);
 
             return appointment;
         }
 
         public void Delete(Appointment item)
         {
-            throw new NotImplementedException();
+            base.DeleteById(item.Id);
         }
 
         public IEnumerable<Appointment> FindByDate(DateTime date)
         {
-            throw new NotImplementedException();
+            return GetAllItems().Where(item => item.StartTime.DayOfYear == date.DayOfYear);
         }
 
-        public Appointment FindById(int id)
+        public new Appointment FindById(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Appointment> GetAllItems()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LoadFromJson(string json)
-        {
-            var dictionary = JsonConvert.DeserializeObject<Dictionary<int, Appointment>>(json);
-            foreach (var item in dictionary)
-            {
-                //This will add or update an item
-                _dictionary[item.Key] = item.Value;
-            }
-        }
-
-        public string ToJson()
-        {
-            return JsonConvert.SerializeObject(_dictionary, Formatting.Indented);
+            return (Appointment) base.FindById(id);
         }
 
         public Appointment Update(Appointment item)
         {
-            throw new NotImplementedException();
+            return (Appointment)base.Update(item);
         }
+
+        public IEnumerable<Appointment> GetAllItems()
+        {
+            return Dictionary.Values.Cast<Appointment>();
+        }
+
+
     }
 }
